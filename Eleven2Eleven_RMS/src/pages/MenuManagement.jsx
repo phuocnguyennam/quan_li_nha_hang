@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Trash2, Plus, Search, Filter, Edit, Eye, EyeOff } from 'lucide-react'
-import * as api from '@/data_access/api'
+import * as api from '@/services/MenuManagementService'
 import { useNavigate } from 'react-router-dom'
 
 export default function MenuManagement() {

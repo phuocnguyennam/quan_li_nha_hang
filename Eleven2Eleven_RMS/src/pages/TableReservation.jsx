@@ -12,8 +12,7 @@ import { Input }  from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Field, FieldLabel, FieldContent, FieldSet } from "@/components/ui/field";
 
-import { fetchAvailableTables } from "@/services/tableService";
-import { createReservation }    from "@/services/TableInfoService";
+import { fetchAvailableTables, createReservation } from "@/services/TableReservationService";
 
 // ─────────────────────────────────────────────────────────────
 export default function TableReservation() {

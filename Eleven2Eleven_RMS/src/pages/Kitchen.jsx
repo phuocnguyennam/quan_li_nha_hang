@@ -4,7 +4,9 @@ import { Button } from '../components/ui/button';
 import { CheckCircle2, Clock, DollarSign, Receipt, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 // Import API để lấy giá tiền và cập nhật trạng thái bàn
-import { getProducts, getTables, updateTable, getIngredients } from '../data_access/api';
+import { fetchProducts as getProducts } from '@/services/MenuManagementService';
+import { fetchTables as getTables, updateTable } from '@/services/SeatingManagementService';
+import { fetchIngredients as getIngredients } from '@/services/IngredientManagementService';
 
 export default function KitchenPage() {
   // Lấy thêm removeOrder, checkoutTable và downloadInvoice từ Context

@@ -4,7 +4,9 @@ import { Plus, Minus, X, Lock } from 'lucide-react';
 import { useOrders } from '../contexts/OrderContext';
 import { Link } from 'react-router-dom';
 
-import { getProducts, getTables, getReservations, updateTable, deleteReservation } from '../data_access/api';
+import { fetchProducts as getProducts } from '@/services/MenuManagementService';
+import { fetchTables as getTables, updateTable } from '@/services/SeatingManagementService';
+import { fetchReservations as getReservations, cancelReservation as deleteReservation } from '@/services/TableInfoService';
 
 export default function OrderPage() {
   const [tableNumber, setTableNumber] = useState('');

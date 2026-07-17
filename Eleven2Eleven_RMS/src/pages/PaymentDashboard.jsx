@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useOrders } from '../contexts/OrderContext';
-import { getProducts, getTables, updateTable, getOrders } from '../data_access/api';
+import { fetchProducts as getProducts } from '@/services/MenuManagementService';
+import { fetchTables as getTables, updateTable } from '@/services/SeatingManagementService';
+import { fetchOrders as getOrders } from '@/services/OrderService';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Receipt, DollarSign, Package, History } from 'lucide-react';

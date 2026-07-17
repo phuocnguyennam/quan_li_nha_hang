@@ -11,10 +11,15 @@ const { verifyToken } = require('../utils/jwtUtils')
 //  Nếu hợp lệ → gắn req.user và gọi next()
 // ─────────────────────────────────────────────────────────────
 function requireAuth(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : null
+  let token = req.cookies ? req.cookies.access_token : null
+
+  if (!token) {
+    const authHeader = req.headers['authorization']
+    token = authHeader && authHeader.startsWith('Bearer ')
+      ? authHeader.slice(7)
+      : null
+    if (token === '') token = null
+  }
 
   if (!token) {
     return res.status(401).json({ message: 'Unauthorized: No token provided.' })

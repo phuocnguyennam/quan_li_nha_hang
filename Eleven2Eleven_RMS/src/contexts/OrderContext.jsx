@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import * as api from '../data_access/api'
+import { fetchOrders as apiGetOrders, addOrder as apiAddOrder } from '@/services/OrderService'
+import { fetchProducts as apiGetProducts, fetchRecipesForProduct as apiGetRecipesForProduct } from '@/services/MenuManagementService'
+import { getIngredient as apiGetIngredient, updateIngredient as apiUpdateIngredient } from '@/services/IngredientManagementService'
 
 const OrderContext = createContext();
 
@@ -14,7 +16,7 @@ export function OrderProvider({ children }) {
   useEffect(() => {
     const loadTransactionHistory = async () => {
       try {
-        const orders = await api.getOrders()
+        const orders = await apiGetOrders()
         const transactions = (orders || []).map(order => ({
           id: order.id,
           tableNumber: order.table_number ?? order.tableNumber,
@@ -88,7 +90,7 @@ export function OrderProvider({ children }) {
     }
 
     try {
-      const created = await api.addOrder(newTransactionSnake)
+      const created = await apiAddOrder(newTransactionSnake)
       const savedTx = created && created.id ? { ...newTransactionLocal, id: created.id } : newTransactionLocal
       
       // Update local transaction history
@@ -117,14 +119,14 @@ export function OrderProvider({ children }) {
 
       const order = savedOrders.find(o => o.tableNumber === tableNumber)
       if (order) {
-        const products = await api.getProducts()
+        const products = await apiGetProducts()
         for (const item of order.items) {
           const targetName = String(item.dishName || '').trim().toLowerCase()
           const prod = (products || []).find(p => String(p.name || '').trim().toLowerCase() === targetName)
           if (!prod) {
             continue
           }
-          const recs = await api.getRecipesForProduct(prod.id)
+          const recs = await apiGetRecipesForProduct(prod.id)
           for (const r of (recs || [])) {
             // determine ingredient id from possible fields
             const rawId = r.ingredient_id ?? r.ingredientId ?? null
@@ -143,10 +145,10 @@ export function OrderProvider({ children }) {
         for (const [ingIdStr, needed] of consumption.entries()) {
           const ingId = Number(ingIdStr).toString() === ingIdStr ? Number(ingIdStr) : ingIdStr
           try {
-            const current = await api.getIngredient(ingId)
+            const current = await apiGetIngredient(ingId)
             const currentQty = Number(current?.quantity) || 0
             const newQty = Math.max(0, currentQty - needed)
-            await api.updateIngredient(ingId, { quantity: newQty })
+            await apiUpdateIngredient(ingId, { quantity: newQty })
           } catch (err) {
             console.error('Error updating ingredient', ingIdStr, err)
           }

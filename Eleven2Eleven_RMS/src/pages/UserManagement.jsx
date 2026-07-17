@@ -19,7 +19,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
-} from '@/services/Usermanagementservice'
+} from '@/services/UserManagementService'
 
 // ── Initial form state ────────────────────────────────────────
 const EMPTY_FORM = { username: '', name: '', email: '', password: '', role_id: '' }

@@ -13,9 +13,10 @@ function getToken() {
 }
 
 function buildHeaders() {
+  const token = getToken()
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${getToken()}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 }
 

@@ -16,7 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-import { fetchRoles } from "@/services/Usermanagementservice"  // ← đổi sang service mới
+import { fetchRoles } from "@/services/UserManagementService"
 
 // Fallback dùng khi fetch thất bại hoặc đang loading
 const fallbackRoles = [

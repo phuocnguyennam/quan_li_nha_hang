@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import * as api from '@/data_access/api'
+import * as api from '@/services/EditRecipeService'
 
 export default function EditRecipe() {
   const { productId: pidParam } = useParams()

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchRoles } from "@/services/Usermanagementservice";
+import { fetchRoles } from "@/services/UserManagementService";
 import { Separator } from "@radix-ui/react-separator";
 import { Card } from "../ui/card";
 import { Button } from "../ui/button";

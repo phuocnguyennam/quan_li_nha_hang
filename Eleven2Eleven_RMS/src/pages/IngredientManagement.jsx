@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Trash2, Plus, Search, Edit } from 'lucide-react'
-import * as api from '@/data_access/api'
+import * as api from '@/services/IngredientManagementService'
 
 export default function IngredientManagement() {
   const [ingredients, setIngredients] = useState([])
