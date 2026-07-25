@@ -1,0 +1,5 @@
+[[allowlists]]
+description = "Ignore sealed secrets directory and files"
+paths = [
+    '''k8s[/\\]sealed-secret[/\\]'''
+]
