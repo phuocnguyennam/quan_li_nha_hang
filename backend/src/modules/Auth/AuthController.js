@@ -3,9 +3,10 @@
 // Nhiệm vụ: validate input → gọi repository → xử lý → trả Response.
 // Không được viết SQL trực tiếp ở đây — mọi DB call đi qua repository.
 
+const axios = require('axios')
 const { getUserByUsername, getUser } = require('../User/UserRepository')
-const { hashPassword, verifyPassword } = require('../../utils/passwordUtils')
-const { signToken, signRefreshToken, verifyRefreshToken } = require('../../utils/jwtUtils')
+const { verifyPassword } = require('../../utils/passwordUtils')
+const { verifyToken } = require('../../utils/jwtUtils')
 
 // ─────────────────────────────────────────────────────────────
 //  Hằng số thông báo lỗi — dùng chung để dễ chỉnh sửa sau này
@@ -65,7 +66,6 @@ async function login(req, res) {
     // ── 2. Tìm user trong DB ──────────────────────────────────
     const user = await getUserByUsername(trimmedUsername)
     if (!user) {
-      // Dùng thông báo chung để tránh lộ thông tin user có tồn tại không
       return res.status(401).json({ message: ERR.WRONG_PASSWORD })
     }
 
@@ -85,7 +85,44 @@ async function login(req, res) {
       return res.status(401).json({ message: ERR.WRONG_PASSWORD })
     }
 
-    // ── 6. Tạo JWT token ──────────────────────────────────────
+    // ── 6. Yêu cầu Keycloak cấp phát Token ────────────────────
+    const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://localhost:8080'
+    const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'master'
+    
+    const params = new URLSearchParams()
+    params.append('grant_type', 'password')
+    params.append('client_id', process.env.KEYCLOAK_CLIENT_ID || 'restaurant-app')
+    params.append('client_secret', process.env.KEYCLOAK_CLIENT_SECRET || '')
+    params.append('username', trimmedUsername)
+    params.append('password', password)
+
+    const tokenResponse = await axios.post(
+      `${KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
+      params,
+      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+    )
+
+    const { access_token, refresh_token, expires_in, refresh_expires_in } = tokenResponse.data
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    // Thiết lập cookie cho Access Token
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure:   isProduction,
+      sameSite: 'lax',
+      maxAge:   expires_in * 1000,
+      path:     '/',
+    })
+
+    // Thiết lập cookie cho Refresh Token
+    res.cookie('refresh_token', refresh_token, {
+      httpOnly: true,
+      secure:   isProduction,
+      sameSite: 'lax',
+      maxAge:   remember ? 30 * 24 * 60 * 60 * 1000 : refresh_expires_in * 1000,
+      path:     '/api/auth',
+    })
+
     const payload = {
       id:        user.id,
       username:  user.name,
@@ -93,37 +130,14 @@ async function login(req, res) {
       role_id:   user.role_id,
       role_name: user.role_name || '',
     }
-    const accessToken  = signToken(payload)
-    const refreshToken = signRefreshToken({ id: user.id }, !!remember)
 
-    const isProduction = process.env.NODE_ENV === 'production'
-
-    // Thiết lập cookie options cho Access Token
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure:   isProduction || true,
-      sameSite: 'lax',
-      maxAge:   15 * 60 * 1000, // 15 phút
-      path:     '/',
-    })
-
-    // Thiết lập cookie options cho Refresh Token
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure:   isProduction || true,
-      sameSite: 'lax',
-      maxAge:   remember ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000, // 30 ngày hoặc 7 ngày
-      path:     '/api/auth', // giới hạn đường dẫn cho Refresh Token
-    })
-
-    // ── 7. Trả về response (không trả password/salt) ──────────
     return res.status(200).json({
       message: 'Login successful.',
       user: payload,
     })
   } catch (err) {
-    console.error('[AuthController] login error:', err)
-    return res.status(500).json({ message: ERR.SERVER_ERROR })
+    console.error('[AuthController] Keycloak login error:', err.response?.data || err.message)
+    return res.status(401).json({ message: 'Authentication failed.' })
   }
 }
 
@@ -173,12 +187,31 @@ async function refresh(req, res) {
       return res.status(401).json({ message: 'Refresh token not found.' })
     }
 
-    let decoded
+    const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://localhost:8080'
+    const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'master'
+
+    // Gửi yêu cầu refresh token tới Keycloak
+    const params = new URLSearchParams()
+    params.append('grant_type', 'refresh_token')
+    params.append('client_id', process.env.KEYCLOAK_CLIENT_ID || 'restaurant-app')
+    params.append('client_secret', process.env.KEYCLOAK_CLIENT_SECRET || '')
+    params.append('refresh_token', refreshToken)
+
+    let tokenResponse
     try {
-      decoded = verifyRefreshToken(refreshToken)
+      tokenResponse = await axios.post(
+        `${KEYCLOAK_SERVER_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token`,
+        params,
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      )
     } catch (err) {
       return res.status(401).json({ message: 'Invalid or expired refresh token.' })
     }
+
+    const { access_token, refresh_token: new_refresh_token, expires_in, refresh_expires_in } = tokenResponse.data
+
+    // Giải mã access_token mới để lấy thông tin user
+    const decoded = await verifyToken(access_token)
 
     const user = await getUser(decoded.id)
     if (!user) {
@@ -189,6 +222,26 @@ async function refresh(req, res) {
       return res.status(403).json({ message: 'Account is disabled.' })
     }
 
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    // Thiết lập cookie mới cho Access Token
+    res.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure:   isProduction,
+      sameSite: 'lax',
+      maxAge:   expires_in * 1000,
+      path:     '/',
+    })
+
+    // Thiết lập cookie mới cho Refresh Token
+    res.cookie('refresh_token', new_refresh_token, {
+      httpOnly: true,
+      secure:   isProduction,
+      sameSite: 'lax',
+      maxAge:   refresh_expires_in * 1000,
+      path:     '/api/auth',
+    })
+
     const payload = {
       id:        user.id,
       username:  user.name,
@@ -196,21 +249,10 @@ async function refresh(req, res) {
       role_id:   user.role_id,
       role_name: user.role_name || '',
     }
-    const newAccessToken = signToken(payload)
-
-    const isProduction = process.env.NODE_ENV === 'production'
-
-    res.cookie('access_token', newAccessToken, {
-      httpOnly: true,
-      secure:   isProduction || true,
-      sameSite: 'lax',
-      maxAge:   15 * 60 * 1000,
-      path:     '/',
-    })
 
     return res.status(200).json({ message: 'Token refreshed successfully.', user: payload })
   } catch (err) {
-    console.error('[AuthController] refresh error:', err)
+    console.error('[AuthController] refresh error:', err.response?.data || err.message)
     return res.status(500).json({ message: 'Internal server error.' })
   }
 }

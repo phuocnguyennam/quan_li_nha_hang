@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "restaurant-backend.fullname" . }}
+  labels:
+    {{- include "restaurant-backend.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "restaurant-backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "restaurant-backend.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "{{ .Values.service.port }}"
+            - name: DB_HOST
+              value: "{{ .Values.env.dbHost }}"
+            - name: DB_PORT
+              value: "{{ .Values.env.dbPort }}"
+            - name: DB_USER
+              value: "{{ .Values.env.dbUser }}"
+            - name: DB_NAME
+              value: "{{ .Values.env.dbName }}"
+            - name: DB_ENCRYPT
+              value: "{{ .Values.env.dbEncrypt }}"
+            - name: DB_TRUST_CERT
+              value: "{{ .Values.env.dbTrustCert }}"
+            - name: KEYCLOAK_SERVER_URL
+              value: "{{ .Values.env.keycloakServerUrl }}"
+            - name: KEYCLOAK_REALM
+              value: "{{ .Values.env.keycloakRealm }}"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "{{ .Values.env.keycloakClientId }}"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret }}
+                  key: {{ .Values.dbPasswordKey }}
+            - name: KEYCLOAK_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecret }}
+                  key: {{ .Values.keycloakSecretKey }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

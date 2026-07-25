@@ -10,7 +10,7 @@ const { verifyToken } = require('../utils/jwtUtils')
 //  Đọc token từ header: Authorization: Bearer <token>
 //  Nếu hợp lệ → gắn req.user và gọi next()
 // ─────────────────────────────────────────────────────────────
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
   let token = req.cookies ? req.cookies.access_token : null
 
   if (!token) {
@@ -26,8 +26,8 @@ function requireAuth(req, res, next) {
   }
 
   try {
-    const decoded = verifyToken(token)
-    req.user = decoded   // { id, username, full_name, role_id, role_name, iat, exp }
+    const decoded = await verifyToken(token)
+    req.user = decoded   // { id, username, full_name, role_id, role_name }
     next()
   } catch (err) {
     if (err.name === 'TokenExpiredError') {

@@ -1,0 +1,16 @@
+# PostgreSQL Helm Values
+image:
+  repository: bitnamilegacy/postgresql
+  tag: 17.6.0-debian-12-r0
+
+auth:
+  existingSecret: keycloak-postgres-secret
+  secretKeys:
+    adminPasswordKey: postgres-password
+    userPasswordKey: postgres-password
+  database: keycloak
+  username: keycloak
+
+primary:
+  service:
+    type: ClusterIP

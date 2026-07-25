@@ -1,0 +1,44 @@
+# Keycloak Bitnami Helm Values
+production: false
+
+image:
+  repository: bitnamilegacy/keycloak
+
+auth:
+  adminUser: admin
+  existingSecret: keycloak-admin-secret
+  passwordSecretKey: admin-password
+
+http:
+  relativePath: "/"
+
+service:
+  type: NodePort
+
+livenessProbe:
+  initialDelaySeconds: 300
+
+readinessProbe:
+  initialDelaySeconds: 300
+
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: keycloak-postgresql
+  port: 5432
+  user: keycloak
+  database: keycloak
+  existingSecret: keycloak-postgres-secret
+  existingSecretPasswordKey: postgres-password
+
+extraStartupArgs: --import-realm
+
+extraVolumes:
+  - name: realm-import
+    configMap:
+      name: keycloak-realm-import
+
+extraVolumeMounts:
+  - name: realm-import
+    mountPath: /opt/bitnami/keycloak/data/import

@@ -1,0 +1,46 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/phuocnguyennam/restaurant-backend
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets:
+  - name: ghcr-pull-secret
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: api.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+env:
+  dbHost: "localhost"
+  dbPort: "1433"
+  dbUser: "sa"
+  dbName: "RESTAURANT_DB"
+  dbEncrypt: "false"
+  dbTrustCert: "true"
+  keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
+  keycloakRealm: "master"
+  keycloakClientId: "restaurant-app"
+
+# Tên của existingSecret chứa mật khẩu nhạy cảm
+existingSecret: "postgres-credentials"
+# Key trong secret tương ứng cho DB Password và Keycloak Client Secret
+dbPasswordKey: "postgres-password"
+keycloakSecretKey: "keycloak-client-secret"
+
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

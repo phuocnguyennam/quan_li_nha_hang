@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps-production
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: restaurant-backend
+            path: k8s/charts/backend
+            valuesFile: ../../env/production/backend-values.yaml
+          - name: restaurant-frontend
+            path: k8s/charts/frontend
+            valuesFile: ../../env/production/frontend-values.yaml
+  template:
+    metadata:
+      name: '{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: 'https://github.com/phuocnguyennam/quan_li_nha_hang.git'
+        targetRevision: main
+        path: '{{path}}'
+        helm:
+          valueFiles:
+            - '{{valuesFile}}'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: production
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        createNamespace: true

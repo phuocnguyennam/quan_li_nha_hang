@@ -1,0 +1,18 @@
+# ArgoCD Helm Values Configuration
+global:
+  domain: argocd.minikube.local
+
+server:
+  service:
+    type: NodePort
+  config:
+    repositories: |
+      - url: https://github.com/phuocnguyennam/quan_li_nha_hang.git
+        type: git
+        name: main-repo
+    url: http://argocd.minikube.local
+
+configs:
+  cm:
+    url: http://argocd.minikube.local
+    admin.enabled: "true"

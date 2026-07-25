@@ -1,0 +1,95 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure-helm-apps
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: keycloak-postgresql
+            namespace: keycloak
+            repoURL: 'https://charts.bitnami.com/bitnami'
+            chart: postgresql
+            targetRevision: 15.5.4
+            valuesPath: k8s/deploy/keycloak/postgres-values.yaml
+            wave: "1"
+          - name: keycloak
+            namespace: keycloak
+            repoURL: 'https://charts.bitnami.com/bitnami'
+            chart: keycloak
+            targetRevision: 25.2.0
+            valuesPath: k8s/deploy/keycloak/values.yaml
+            wave: "2"
+          - name: kube-prometheus-stack
+            namespace: monitoring
+            repoURL: 'https://prometheus-community.github.io/helm-charts'
+            chart: kube-prometheus-stack
+            targetRevision: 61.3.0
+            valuesPath: k8s/deploy/monitoring/prometheus-values.yaml
+            wave: "3"
+          - name: loki-stack
+            namespace: monitoring
+            repoURL: 'https://grafana.github.io/helm-charts'
+            chart: loki-stack
+            targetRevision: 2.9.11
+            valuesPath: k8s/deploy/monitoring/loki-values.yaml
+            wave: "4"
+  template:
+    metadata:
+      name: '{{name}}'
+      annotations:
+        argocd.argoproj.github.io/sync-wave: '{{wave}}'
+    spec:
+      project: infrastructure-project
+      sources:
+        - repoURL: '{{repoURL}}'
+          chart: '{{chart}}'
+          targetRevision: '{{targetRevision}}'
+          helm:
+            valueFiles:
+              - $values/{{valuesPath}}
+        - repoURL: 'https://github.com/phuocnguyennam/quan_li_nha_hang.git'
+          targetRevision: main
+          ref: values
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        createNamespace: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: infrastructure-git-apps
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - name: keycloak-config
+            namespace: keycloak
+            path: k8s/deploy/keycloak/manifests
+            wave: "1"
+  template:
+    metadata:
+      name: '{{name}}'
+      annotations:
+        argocd.argoproj.github.io/sync-wave: '{{wave}}'
+    spec:
+      project: infrastructure-project
+      source:
+        repoURL: 'https://github.com/phuocnguyennam/quan_li_nha_hang.git'
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: 'https://kubernetes.default.svc'
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        createNamespace: true

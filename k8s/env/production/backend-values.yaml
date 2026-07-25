@@ -1,0 +1,36 @@
+replicaCount: 2
+
+image:
+  tag: "latest"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: api.phuocnguyen.dpdns.org
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: restaurant-backend-tls
+      hosts:
+        - api.phuocnguyen.dpdns.org
+
+env:
+  dbHost: "host.minikube.internal"
+  dbPort: "1433"
+  dbUser: "sa"
+  dbName: "RESTAURANT_DB"
+  dbEncrypt: "false"
+  dbTrustCert: "true"
+  keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
+  keycloakRealm: "master"
+  keycloakClientId: "restaurant-app"
+
+# Trỏ tới production credentials secret đã mã hóa qua Sealed Secrets
+existingSecret: "backend-prod-secret"
+dbPasswordKey: "postgres-password"
+keycloakSecretKey: "keycloak-client-secret"
