@@ -1,9 +1,7 @@
 replicaCount: 2
-
 image:
-  tag: "latest"
+  tag: "sha-edb875a90d605a50a65cf420610c5c20cf0e2cc1"
   pullPolicy: "Always"
-
 ingress:
   enabled: true
   className: "nginx"
@@ -19,7 +17,6 @@ ingress:
     - secretName: restaurant-backend-tls
       hosts:
         - api.phuocnguyen.dpdns.org
-
 env:
   dbHost: "host.minikube.internal"
   dbPort: "1433"
@@ -30,7 +27,6 @@ env:
   keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
   keycloakRealm: "master"
   keycloakClientId: "restaurant-app"
-
 # Trỏ tới production credentials secret đã mã hóa qua Sealed Secrets
 existingSecret: "backend-prod-secret"
 dbPasswordKey: "postgres-password"

@@ -1,9 +1,7 @@
 replicaCount: 2
-
 image:
-  tag: "latest"
+  tag: "sha-edb875a90d605a50a65cf420610c5c20cf0e2cc1"
   pullPolicy: "Always"
-
 ingress:
   enabled: true
   className: "nginx"
@@ -19,6 +17,5 @@ ingress:
     - secretName: restaurant-frontend-tls
       hosts:
         - phuocnguyen.dpdns.org
-
 env:
   apiUrl: "https://api.phuocnguyen.dpdns.org"
