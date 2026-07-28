@@ -3,7 +3,7 @@
 // Nhiệm vụ duy nhất: xác thực JWT token và kiểm tra Role.
 // Không chứa logic nghiệp vụ, không gọi DB trực tiếp.
 
-const { verifyToken } = require('../utils/jwtUtils')
+const { verifyToken } = require('../utils/Jwtutils')
 
 // ─────────────────────────────────────────────────────────────
 //  requireAuth — xác thực JWT token

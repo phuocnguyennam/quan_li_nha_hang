@@ -4,7 +4,7 @@
 
 const repo                = require('./UserRepository')
 const roleRepo            = require('./RoleRepository')
-const { createPasswordHash } = require('../../utils/passwordUtils')
+const { createPasswordHash } = require('../../utils/Passwordutils')
 
 // ── GET /api/users ─────────────────────────────────────────────────────────
 async function listUsers(req, res, next) {

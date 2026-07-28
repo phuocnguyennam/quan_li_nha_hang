@@ -5,8 +5,8 @@
 
 const axios = require('axios')
 const { getUserByUsername, getUser } = require('../User/UserRepository')
-const { verifyPassword } = require('../../utils/passwordUtils')
-const { verifyToken } = require('../../utils/jwtUtils')
+const { verifyPassword } = require('../../utils/Passwordutils')
+const { verifyToken } = require('../../utils/Jwtutils')
 
 // ─────────────────────────────────────────────────────────────
 //  Hằng số thông báo lỗi — dùng chung để dễ chỉnh sửa sau này
