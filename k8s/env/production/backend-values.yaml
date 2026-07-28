@@ -2,6 +2,7 @@ replicaCount: 2
 
 image:
   tag: "latest"
+  pullPolicy: "Always"
 
 ingress:
   enabled: true
