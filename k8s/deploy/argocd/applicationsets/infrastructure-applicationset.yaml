@@ -7,6 +7,13 @@ spec:
   generators:
     - list:
         elements:
+          - name: cert-manager
+            namespace: cert-manager
+            repoURL: 'https://charts.jetstack.io'
+            chart: cert-manager
+            targetRevision: v1.12.0
+            valuesPath: k8s/deploy/cert-manager/cert-manager-values.yaml
+            wave: "1"
           - name: keycloak-postgresql
             namespace: keycloak
             repoURL: 'https://charts.bitnami.com/bitnami'
@@ -74,6 +81,10 @@ spec:
             namespace: keycloak
             path: k8s/deploy/keycloak/manifests
             wave: "1"
+          - name: cert-manager-config
+            namespace: kube-system
+            path: k8s/deploy/cert-manager/manifests
+            wave: "2"
   template:
     metadata:
       name: '{{name}}'
