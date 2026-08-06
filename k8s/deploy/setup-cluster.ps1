@@ -13,19 +13,24 @@ if ($LASTEXITCODE -ne 0) {
 } else {
     Write-Host "Minikube da san sang." -ForegroundColor Green
 }
+Write-Host "Kich hoat addon Ingress..." -ForegroundColor Yellow
+& minikube addons enable ingress
 
 Write-Host "`n=== 2. Khoi tao Namespaces ===" -ForegroundColor Cyan
-foreach ($ns in @("argocd", "monitoring", "keycloak", "production")) {
+foreach ($ns in @("argocd", "monitoring", "keycloak", "production", "cert-manager")) {
     kubectl create namespace $ns --dry-run=client -o yaml | kubectl apply -f -
 }
 
 Write-Host "`n=== 3. Them va Cap nhat Helm Repositories ===" -ForegroundColor Cyan
 helm repo add argo https://argoproj.github.io/argo-helm
 helm repo add sealed-secrets https://bitnami.github.io/sealed-secrets
+helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
-Write-Host "`n=== 4. Kiem tra trang thai Sealed Secrets Operator ===" -ForegroundColor Cyan
-kubectl rollout status deployment/sealed-secrets -n kube-system --timeout=60s
+Write-Host "`n=== 4. Trien khai Sealed Secrets Operator ===" -ForegroundColor Cyan
+helm upgrade --install sealed-secrets sealed-secrets/sealed-secrets --namespace kube-system --set keyRenewPeriod=0
+Write-Host "Cho Sealed Secrets ready..." -ForegroundColor Yellow
+kubectl rollout status deployment/sealed-secrets -n kube-system --timeout=150s
 
 
 Write-Host "`n=== 5. Apply SealedSecrets ===" -ForegroundColor Cyan
@@ -35,6 +40,7 @@ kubectl apply -f "$sealedSecretDir\keycloak-admin-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\postgres-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\ghcr-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\backend-prod-sealed-secret.yaml"
+kubectl apply -f "$sealedSecretDir\cloudflared-sealed-secret.yaml"
 
 Write-Host "`n=== 6. Trien khai ArgoCD ===" -ForegroundColor Cyan
 helm upgrade --install argocd argo/argo-cd --namespace argocd -f "$scriptDir\argocd\values.yaml"
@@ -43,6 +49,9 @@ kubectl rollout status deployment/argocd-server -n argocd --timeout=150s
 
 Write-Host "`n=== 7. Ap dung file bootstrap.yaml de kich hoat GitOps ===" -ForegroundColor Cyan
 kubectl apply -f "$scriptDir\argocd\bootstrap.yaml"
+
+Write-Host "`n=== 8. Trien khai Cloudflare Tunnel (cloudflared) ===" -ForegroundColor Cyan
+kubectl apply -f "$scriptDir\cloudflared\cloudflared.yaml"
 
 Write-Host "`n==============================================================================" -ForegroundColor Green
 Write-Host " HOAN TAT SETUP BOOTSTRAP ARGO CUM MINIKUBE!" -ForegroundColor Green
