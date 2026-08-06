@@ -1,6 +1,6 @@
 replicaCount: 2
 image:
-  tag: "sha-fa2d4ac0f5a886a95b7960ea0c0a44f5ac28f1f7"
+  tag: "sha-b922ee409a4636bdbbecf3691305988037fd12cb"
   pullPolicy: "Always"
 ingress:
   enabled: true
