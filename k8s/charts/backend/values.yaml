@@ -33,6 +33,7 @@ env:
   keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
   keycloakRealm: "master"
   keycloakClientId: "restaurant-app"
+  frontendUrl: "https://staff.phuocnguyen.dpdns.org"
 
 # Tên của existingSecret chứa mật khẩu nhạy cảm
 existingSecret: "postgres-credentials"

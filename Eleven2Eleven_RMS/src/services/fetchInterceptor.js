@@ -30,7 +30,7 @@ window.fetch = async function (input, init = {}) {
     !url.includes('/auth/logout')
   ) {
     try {
-      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://api.phuocnguyen.dpdns.org'
       const refreshRes = await originalFetch(`${apiBaseUrl}/api/auth/refresh`, {
         method: 'POST',
         credentials: 'include',

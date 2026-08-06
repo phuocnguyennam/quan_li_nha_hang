@@ -9,6 +9,9 @@ RUN npm install
 
 COPY . .
 
+ARG VITE_API_URL=https://api.phuocnguyen.dpdns.org
+ENV VITE_API_URL=${VITE_API_URL}
+
 RUN npm run build
 
 # --- Stage 2: Production Stage ---

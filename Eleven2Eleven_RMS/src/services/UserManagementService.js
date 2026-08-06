@@ -2,7 +2,7 @@
 // Nhiệm vụ: đóng gói toàn bộ logic giao tiếp với /api/users
 // Component chỉ gọi các hàm này — không gọi fetch trực tiếp trong component.
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api.phuocnguyen.dpdns.org'
 
 // ── fetch wrapper ─────────────────────────────────────────────
 // Tự động gắn token, parse JSON, throw lỗi có message từ server.

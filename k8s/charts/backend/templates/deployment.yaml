@@ -47,6 +47,8 @@ spec:
               value: "{{ .Values.env.keycloakRealm }}"
             - name: KEYCLOAK_CLIENT_ID
               value: "{{ .Values.env.keycloakClientId }}"
+            - name: FRONTEND_URL
+              value: "{{ .Values.env.frontendUrl | default "https://staff.phuocnguyen.dpdns.org" }}"
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:

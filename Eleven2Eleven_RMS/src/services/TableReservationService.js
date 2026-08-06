@@ -1,7 +1,7 @@
 // frontend/src/services/tableService.js
 // Fetch wrapper cho Table API
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://api.phuocnguyen.dpdns.org'
 
 function getToken() {
   return localStorage.getItem('token') || ''

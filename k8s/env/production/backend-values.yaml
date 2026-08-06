@@ -27,6 +27,7 @@ env:
   keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
   keycloakRealm: "master"
   keycloakClientId: "restaurant-app"
+  frontendUrl: "https://staff.phuocnguyen.dpdns.org"
 # Trỏ tới production credentials secret đã mã hóa qua Sealed Secrets
 existingSecret: "backend-prod-secret"
 dbPasswordKey: "postgres-password"
