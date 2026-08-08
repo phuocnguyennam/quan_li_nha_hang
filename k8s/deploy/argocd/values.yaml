@@ -11,6 +11,28 @@ server:
         type: git
         name: main-repo
     url: http://argocd.minikube.local
+  livenessProbe:
+    timeoutSeconds: 15
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 5
+  readinessProbe:
+    timeoutSeconds: 15
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 5
+
+repoServer:
+  livenessProbe:
+    timeoutSeconds: 15
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 5
+  readinessProbe:
+    timeoutSeconds: 15
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    failureThreshold: 5
 
 configs:
   cm:
