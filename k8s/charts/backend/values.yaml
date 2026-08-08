@@ -24,13 +24,13 @@ ingress:
   tls: []
 
 env:
-  dbHost: "localhost"
+  dbHost: "restaurant-db.production.svc.cluster.local"
   dbPort: "1433"
   dbUser: "sa"
   dbName: "RESTAURANT_DB"
   dbEncrypt: "false"
   dbTrustCert: "true"
-  keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local:8080"
+  keycloakServerUrl: "http://keycloak.keycloak.svc.cluster.local"
   keycloakRealm: "master"
   keycloakClientId: "restaurant-app"
   frontendUrl: "https://staff.phuocnguyen.dpdns.org"

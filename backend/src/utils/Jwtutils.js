@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 const jwksClient = require('jwks-rsa')
 
-const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://localhost:8080'
+const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://keycloak.keycloak.svc.cluster.local'
 const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'master'
 
 const client = jwksClient({

@@ -60,8 +60,8 @@ async function addUser(data) {
       name:            { type: sql.NVarChar(50),  value: data.name },
       full_name:       { type: sql.NVarChar(100), value: data.full_name  || null },
       email:           { type: sql.NVarChar(150), value: data.email      || null },
-      hashed_password: { type: sql.NVarChar(255), value: data.hashed_password },
-      salt:            { type: sql.NVarChar(32),  value: data.salt },
+      hashed_password: { type: sql.NVarChar(255), value: data.hashed_password || null },
+      salt:            { type: sql.NVarChar(32),  value: data.salt || null },
       role_id:         { type: sql.Int,           value: data.role_id },
       status:          { type: sql.TinyInt,       value: data.status ?? 1 },
     }

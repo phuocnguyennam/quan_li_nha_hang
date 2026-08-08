@@ -74,19 +74,10 @@ async function login(req, res) {
       return res.status(403).json({ message: ERR.ACCOUNT_DISABLED })
     }
 
-    // ── 4. Kiểm tra mật khẩu đã được set chưa ────────────────
-    if (!user.hashed_password || !user.salt) {
-      return res.status(401).json({ message: ERR.NO_PASSWORD })
-    }
-
-    // ── 5. So sánh mật khẩu (PBKDF2 + timingSafeEqual) ───────
-    const isMatch = verifyPassword(password, user.salt, user.hashed_password)
-    if (!isMatch) {
-      return res.status(401).json({ message: ERR.WRONG_PASSWORD })
-    }
+    // ── 4. Xác thực mật khẩu và yêu cầu cấp Token từ Keycloak (SSOT) ─
 
     // ── 6. Yêu cầu Keycloak cấp phát Token ────────────────────
-    const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://localhost:8080'
+    const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://keycloak.keycloak.svc.cluster.local'
     const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'master'
     
     const params = new URLSearchParams()
@@ -187,7 +178,7 @@ async function refresh(req, res) {
       return res.status(401).json({ message: 'Refresh token not found.' })
     }
 
-    const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://localhost:8080'
+    const KEYCLOAK_SERVER_URL = process.env.KEYCLOAK_SERVER_URL || 'http://keycloak.keycloak.svc.cluster.local'
     const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM || 'master'
 
     // Gửi yêu cầu refresh token tới Keycloak

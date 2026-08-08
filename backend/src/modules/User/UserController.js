@@ -4,7 +4,7 @@
 
 const repo                = require('./UserRepository')
 const roleRepo            = require('./RoleRepository')
-const { createPasswordHash } = require('../../utils/Passwordutils')
+const keycloakAdmin       = require('../../utils/KeycloakAdminUtils')
 
 // ── GET /api/users ─────────────────────────────────────────────────────────
 async function listUsers(req, res, next) {
@@ -50,14 +50,21 @@ async function createUser(req, res, next) {
       return res.status(409).json({ message: `Email "${email}" already exists.` })
     }
 
-    const { salt, hashed_password } = createPasswordHash(password)
+    // 1. Tạo User & Phân quyền trên Keycloak (SSOT)
+    await keycloakAdmin.createKeycloakUser({
+      username: name,
+      email,
+      password,
+      role_id: role_id != null ? Number(role_id) : null,
+    })
 
+    // 2. Lưu thông tin nghiệp vụ User vào DB SQL Server
     const created = await repo.addUser({
       name,
       full_name: full_name || null,
       email,
-      hashed_password,
-      salt,
+      hashed_password: null,
+      salt: null,
       role_id: role_id != null ? Number(role_id) : null,
       status:  status  ?? 1,
     })
@@ -96,11 +103,9 @@ async function updateUser(req, res, next) {
     if (role_id   !== undefined) updateData.role_id   = role_id != null ? Number(role_id) : null
     if (status    !== undefined) updateData.status    = status
 
-    // Nếu có password mới → hash lại
+    // Nếu có password mới → cập nhật sang Keycloak SSOT
     if (password) {
-      const { salt, hashed_password } = createPasswordHash(password)
-      updateData.hashed_password = hashed_password
-      updateData.salt            = salt
+      await keycloakAdmin.updateKeycloakUserPassword(existing.name, password)
     }
 
     const updated = await repo.updateUser(id, updateData)
@@ -123,6 +128,8 @@ async function deleteUser(req, res, next) {
     const existing = await repo.getUser(id)
     if (!existing) return res.status(404).json({ message: 'User not found.' })
 
+    // Xóa User khỏi Keycloak và DB
+    await keycloakAdmin.deleteKeycloakUser(existing.name)
     await repo.deleteUser(id)
     res.status(204).send()
   } catch (err) {

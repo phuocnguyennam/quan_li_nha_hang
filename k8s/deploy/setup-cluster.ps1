@@ -37,9 +37,11 @@ Write-Host "`n=== 5. Apply SealedSecrets ===" -ForegroundColor Cyan
 kubectl apply -f "$sealedSecretDir\argocd-admin-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\grafana-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\keycloak-admin-sealed-secret.yaml"
+kubectl apply -f "$sealedSecretDir\realm-import-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\postgres-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\ghcr-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\backend-prod-sealed-secret.yaml"
+kubectl apply -f "$sealedSecretDir\mssql-sealed-secret.yaml"
 kubectl apply -f "$sealedSecretDir\cloudflared-sealed-secret.yaml"
 
 Write-Host "`n=== 6. Trien khai ArgoCD ===" -ForegroundColor Cyan
@@ -50,7 +52,10 @@ kubectl rollout status deployment/argocd-server -n argocd --timeout=150s
 Write-Host "`n=== 7. Ap dung file bootstrap.yaml de kich hoat GitOps ===" -ForegroundColor Cyan
 kubectl apply -f "$scriptDir\argocd\bootstrap.yaml"
 
-Write-Host "`n=== 8. Trien khai Cloudflare Tunnel (cloudflared) ===" -ForegroundColor Cyan
+Write-Host "`n=== 8. Trien khai Co so du lieu MSSQL Server ===" -ForegroundColor Cyan
+kubectl apply -f "$scriptDir\database\mssql.yaml"
+
+Write-Host "`n=== 9. Trien khai Cloudflare Tunnel (cloudflared) ===" -ForegroundColor Cyan
 kubectl apply -f "$scriptDir\cloudflared\cloudflared.yaml"
 
 Write-Host "`n==============================================================================" -ForegroundColor Green

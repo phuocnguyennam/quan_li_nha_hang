@@ -36,8 +36,8 @@ extraStartupArgs: --import-realm
 
 extraVolumes:
   - name: realm-import
-    configMap:
-      name: keycloak-realm-import
+    secret:
+      secretName: keycloak-realm-import
 
 extraVolumeMounts:
   - name: realm-import

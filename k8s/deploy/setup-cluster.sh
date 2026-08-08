@@ -48,9 +48,11 @@ echo "Áp dụng các SealedSecret từ thư mục k8s/sealed-secret vào cluste
 kubectl apply -f "$SEALED_SECRET_DIR/argocd-admin-sealed-secret.yaml"
 kubectl apply -f "$SEALED_SECRET_DIR/grafana-sealed-secret.yaml"
 kubectl apply -f "$SEALED_SECRET_DIR/keycloak-admin-sealed-secret.yaml"
+kubectl apply -f "$SEALED_SECRET_DIR/realm-import-sealed-secret.yaml"
 kubectl apply -f "$SEALED_SECRET_DIR/postgres-sealed-secret.yaml"
 kubectl apply -f "$SEALED_SECRET_DIR/ghcr-sealed-secret.yaml"
 kubectl apply -f "$SEALED_SECRET_DIR/backend-prod-sealed-secret.yaml"
+kubectl apply -f "$SEALED_SECRET_DIR/mssql-sealed-secret.yaml"
 kubectl apply -f "$SEALED_SECRET_DIR/cloudflared-sealed-secret.yaml"
 
 echo ""
@@ -67,7 +69,11 @@ echo "=== 7. Áp dụng file bootstrap.yaml để kích hoạt GitOps ==="
 kubectl apply -f "$SCRIPT_DIR/argocd/bootstrap.yaml"
 
 echo ""
-echo "=== 8. Triển khai Cloudflare Tunnel (cloudflared) ==="
+echo "=== 8. Triển khai Cơ sở dữ liệu MSSQL Server ==="
+kubectl apply -f "$SCRIPT_DIR/database/mssql.yaml"
+
+echo ""
+echo "=== 9. Triển khai Cloudflare Tunnel (cloudflared) ==="
 kubectl apply -f "$SCRIPT_DIR/cloudflared/cloudflared.yaml"
 
 echo ""
