@@ -5,7 +5,6 @@
 
 const axios = require('axios')
 const { getUserByUsername, getUser } = require('../User/UserRepository')
-const { verifyPassword } = require('../../utils/Passwordutils')
 const { verifyToken } = require('../../utils/Jwtutils')
 
 // ─────────────────────────────────────────────────────────────
